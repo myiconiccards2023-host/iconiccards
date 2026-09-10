@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Track Your Order — ICONIC</title>
+  <meta name="description" content="Track the status of your order">
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/track.css?v=1.0">
+</head>
+<body>
+
+  <div class="track-page">
+    <div class="track-brand">
+      <div class="track-brand-badge">
+        <img src="/images/logo.png?v=3" alt="ICONIC Logo">
+      </div>
+      <span class="track-brand-name">ICONIC</span>
+    </div>
+
+    <div class="track-card">
+
+      <!-- Loading State -->
+      <div id="trackLoading" class="track-state">
+        <div class="track-spinner"></div>
+        <p>Loading your order...</p>
+      </div>
+
+      <!-- Error State -->
+      <div id="trackError" class="track-state" style="display: none;">
+        <div class="track-error-icon">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#e11d48" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="13"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <h2>Order Not Found</h2>
+        <p id="trackErrorMsg">We couldn't find an order with this link. Please check the link and try again.</p>
+      </div>
+
+      <!-- Order Content -->
+      <div id="trackContent" style="display: none;">
+        <div class="track-header-row">
+          <div>
+            <span class="track-label">Ticket Number</span>
+            <h2 id="trackOrderId" class="track-order-id">ORD-0000</h2>
+          </div>
+          <button type="button" id="trackRefreshBtn" class="track-refresh-btn" title="Refresh status">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/>
+              <polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Status Stepper -->
+        <div id="trackStepper" class="track-stepper"></div>
+
+        <!-- Cancelled banner (shown instead of stepper progress note) -->
+        <div id="trackCancelledBox" class="track-cancelled-box" style="display: none;">
+          <strong>This order was cancelled.</strong>
+          <p id="trackCancelledReason"></p>
+        </div>
+
+        <!-- Order Details -->
+        <div class="track-section">
+          <h3 class="track-section-title">Order Details</h3>
+          <div id="trackItemsList" class="track-items-list"></div>
+          <div class="track-summary-row">
+            <span>Subtotal</span>
+            <span id="trackSubtotal">₱0.00</span>
+          </div>
+          <div class="track-summary-row">
+            <span>Shipping Fee</span>
+            <span id="trackShipping">₱0.00</span>
+          </div>
+          <div class="track-summary-row track-summary-total">
+            <span>Total</span>
+            <span id="trackTotal">₱0.00</span>
+          </div>
+        </div>
+
+        <div class="track-section">
+          <h3 class="track-section-title">Delivery & Payment</h3>
+          <div class="track-info-row">
+            <span>Customer</span>
+            <span id="trackCustomer">-</span>
+          </div>
+          <div class="track-info-row">
+            <span>Courier</span>
+            <span id="trackCourier">-</span>
+          </div>
+          <div class="track-info-row">
+            <span>Payment Method</span>
+            <span id="trackPayment">-</span>
+          </div>
+          <div class="track-info-row">
+            <span>Order Placed</span>
+            <span id="trackPlacedAt">-</span>
+          </div>
+        </div>
+
+        <p class="track-auto-note">This page updates automatically as your order progresses.</p>
+      </div>
+
+      <a href="/" class="track-back-link">&larr; Back to Store</a>
+    </div>
+  </div>
+
+  <script src="/js/track.js?v=1.0"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="100%" height="100%">
+  <rect width="100%" height="100%" fill="#f4f1ea"/>
+  <rect x="25" y="25" width="550" height="400" fill="none" stroke="#d5cebf" stroke-width="1.5"/>
+  <rect x="35" y="35" width="530" height="380" fill="none" stroke="#e8e3d8" stroke-width="0.75"/>
+  <!-- Card 1 -->
+  <g transform="translate(130, 80) rotate(-6)">
+    <rect width="180" height="260" rx="3" fill="#faf7f0" stroke="#c4bbaa" stroke-width="1.5"/>
+    <rect x="12" y="12" width="156" height="236" fill="none" stroke="#dfdad0" stroke-width="0.75"/>
+    <line x1="25" y1="40" x2="155" y2="40" stroke="#aba293" stroke-width="1"/>
+    <rect x="25" y="55" width="130" height="110" fill="#ede8dc" stroke="#dfdad0" stroke-width="0.75"/>
+    <line x1="25" y1="180" x2="155" y2="180" stroke="#d5cebf" stroke-width="1"/>
+    <line x1="25" y1="195" x2="135" y2="195" stroke="#d5cebf" stroke-width="1"/>
+    <line x1="25" y1="210" x2="145" y2="210" stroke="#d5cebf" stroke-width="1"/>
+  </g>
+  <!-- Card 2 -->
+  <g transform="translate(260, 75) rotate(4)">
+    <rect width="180" height="260" rx="3" fill="#fcfbf8" stroke="#1a1816" stroke-width="1.5"/>
+    <rect x="12" y="12" width="156" height="236" fill="none" stroke="#333" stroke-width="0.75"/>
+    <text x="90" y="32" font-family="serif" font-size="9" font-weight="bold" text-anchor="middle" fill="#1a1816" letter-spacing="1">HERITAGE ISSUE</text>
+    <rect x="25" y="45" width="130" height="115" fill="#f4f1ea" stroke="#1a1816" stroke-width="1"/>
+    <line x1="25" y1="175" x2="155" y2="175" stroke="#1a1816" stroke-width="0.5"/>
+    <text x="90" y="200" font-family="serif" font-size="11" text-anchor="middle" fill="#1a1816">COLLECTOR PORTFOLIO</text>
+    <text x="90" y="218" font-family="monospace" font-size="7.5" text-anchor="middle" fill="#70685e">SERIES 1952 &bull; COTTON RAG</text>
+  </g>
+  <text x="300" y="395" font-family="monospace" font-size="11" text-anchor="middle" fill="#70685e" letter-spacing="2">ARCHIVAL 3-CARD SET &bull; 350 GSM</text>
+</svg>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cards & Food POS System</title>
+  <meta name="description" content="Adaptive Web & Mobile Point of Sale System">
+  
+  <!-- Modern Google Fonts: Plus Jakarta Sans & Orbitron (Branding) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/css/pos.css?v=3.6">
+</head>
+<body class="adaptive-pos-body">
+
+  <!-- ================= ADAPTIVE APP WRAPPER ================= -->
+  <div class="pos-responsive-layout">
+
+    <!-- DESKTOP LEFT NAVIGATION SIDEBAR (Visible on Web Desktop, Hidden on Mobile) -->
+    <aside class="desktop-sidebar">
+      <div class="desktop-brand">
+        <div class="brand-badge-icon">
+          <img src="/images/logo.png?v=3" alt="ICONIC Logo" class="brand-logo-img">
+        </div>
+        <div class="brand-text-col">
+          <span class="brand-title-desktop">ICONIC</span>
+          <span class="brand-slogan">BE THE NAME OF THE GAME</span>
+        </div>
+      </div>
+
+      <nav class="desktop-nav-menu">
+        <a href="#menu" class="desktop-nav-item active" id="deskNavMenu">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/>
+          </svg>
+          <span>Home</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- CENTER CATALOG / PRODUCT LISTING -->
+    <main class="pos-catalog-column">
+      
+      <!-- Top Header Row -->
+      <header class="catalog-top-header">
+        <div class="header-main-row">
+          <!-- Mobile Brand Heading (Visible on Mobile) -->
+          <div class="mobile-header-brand">
+            <div class="mobile-brand-logo-circle">
+              <img src="/images/logo.png?v=3" alt="ICONIC Logo" class="brand-logo-img">
+            </div>
+            <div class="header-heading-group">
+              <h1 class="header-app-title">ICONIC</h1>
+              <span class="brand-slogan">BE THE NAME OF THE GAME</span>
+            </div>
+          </div>
+
+          <!-- Desktop Catalog Heading (Visible on Desktop) -->
+          <div class="desktop-header-heading">
+            <h1 class="header-catalog-title">Products</h1>
+            <span class="header-catalog-sub">Browse and shop our catalog</span>
+          </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="catalog-search-row">
+          <svg class="search-glass-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="11" cy="11" r="7"/>
+            <line x1="21" y1="21" x2="16" y2="16"/>
+          </svg>
+          <input type="text" id="posSearchInput" class="catalog-search-input" placeholder="Search dishes or cards by name...">
+        </div>
+
+        <!-- Category Horizontal Pills -->
+        <nav class="categories-scroll-row" id="categoryGrid">
+          <button type="button" class="cat-pill-btn active" data-category="All">All</button>
+          <button type="button" class="cat-pill-btn" data-category="Cards">Cards</button>
+        </nav>
+      </header>
+
+      <!-- Products Grid -->
+      <section class="catalog-grid-section">
+        <div class="dishes-cards-grid" id="dishesGrid">
+          <!-- Dynamically populated via app.js -->
+        </div>
+
+        <!-- Empty State (Shows 'None' when no items are available) -->
+        <div id="noProductsNotice" class="pos-empty-state" style="display: none;">
+          <div class="empty-state-icon">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#d4d4d8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+              <line x1="12" y1="22.08" x2="12" y2="12"/>
+            </svg>
+          </div>
+          <h3 class="empty-state-title">None</h3>
+          <p class="empty-state-sub">There are currently no items available in this category.</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- DESKTOP RIGHT ORDER PANEL (Fixed on Web Desktop, Hidden on Mobile in favor of Floating Drawer) -->
+    <aside class="desktop-order-panel">
+      
+      <div class="panel-inner-header">
+        <div class="panel-title-row">
+          <h2 class="panel-heading">My Cart</h2>
+          <span class="ticket-id-tag" id="desktopTicketNum">#0000</span>
+        </div>
+        <div class="panel-sub-line" id="desktopOrderTime">TUE, JULY 2024 &bull; 00:00PM</div>
+      </div>
+
+      <!-- Desktop Ticket Scrollable List -->
+      <div class="desktop-ticket-items" id="desktopTicketList">
+        <!-- Injected via app.js -->
+      </div>
+
+      <!-- Desktop Totals Computation -->
+      <div class="desktop-totals-box">
+        <div class="tot-row">
+          <span>Sub Total</span>
+          <span id="deskSubTotal">₱0.00</span>
+        </div>
+        <div class="tot-row">
+          <span>Service Charge</span>
+          <span id="deskServiceCharge">₱0.00</span>
+        </div>
+        <div class="tot-row">
+          <span>Tax</span>
+          <span id="deskTax">₱0.00</span>
+        </div>
+        <div class="tot-row grand-total">
+          <span>Total</span>
+          <span class="grand-price" id="deskGrandTotal">₱0.00</span>
+        </div>
+      </div>
+
+      <!-- Desktop Action Bar -->
+      <div class="desktop-panel-actions">
+        <button type="button" class="btn-desk-checkout" id="btnDeskCheckout">
+          Charge & Place Order
+        </button>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- ================= MOBILE FLOATING ORDER DRAWER (Active on Mobile Screens) ================= -->
+  <aside class="mobile-floating-cart-bar hidden" id="mobileFloatingCartBar">
+    <div class="cart-bar-left">
+      <button type="button" class="cart-toggle-caret" id="btnOpenCartModal" title="Review Cart">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="18 15 12 9 6 15"/>
+        </svg>
+      </button>
+      <div class="cart-summary-text">
+        <span class="cart-items-count-label" id="cartBarItemsCount">0 Items</span>
+        <span class="cart-price-figure" id="cartBarTotalPrice">₱0.00</span>
+      </div>
+    </div>
+
+    <button type="button" class="btn-cart-next" id="btnCartNext">
+      Next
+    </button>
+  </aside>
+
+  <!-- ================= MOBILE BOTTOM NAVIGATION DOCK (Active on Mobile Screens) ================= -->
+  <footer class="mobile-bottom-dock">
+    <!-- Home Tab -->
+    <a href="#home" class="dock-pill-item active" id="dockHomeBtn">
+      <span class="dock-circle-icon active-orange">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/>
+        </svg>
+      </span>
+      <span>Home</span>
+    </a>
+
+    <!-- My Cart Tab -->
+    <a href="#cart" class="dock-pill-item" id="dockOrdersBtn" title="My Cart">
+      <span class="dock-circle-icon" style="position: relative;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        <span class="dock-cart-badge hidden" id="dockCartBadge">0</span>
+      </span>
+      <span>My Cart</span>
+    </a>
+  </footer>
+
+  <!-- ================= CHECKOUT & CUSTOMER DETAILS MODAL ================= -->
+  <div id="checkoutModal" class="pos-modal-backdrop">
+    <div class="pos-modal-card">
+      <div class="pos-modal-header">
+        <h3 class="pos-modal-title" id="checkoutModalTitle">My Cart</h3>
+        <button type="button" class="pos-modal-close" id="closeCheckoutBtn">&times;</button>
+      </div>
+
+      <div class="pos-modal-body">
+        
+        <!-- Current Selected Items Review -->
+        <div class="order-items-review-box" id="modalItemsReviewList">
+          <!-- Injected via app.js -->
+        </div>
+
+        <form id="checkoutForm">
+          <div class="modal-two-col">
+            <div class="form-group-pos">
+              <label class="form-label-pos">Your Full Name <span class="req">*</span></label>
+              <input type="text" id="custFullName" class="input-pos" placeholder="e.g. Maria Santos" required>
+              <span id="custFullNameError" class="field-error-msg" style="display: none;">Please enter your full name (first and last name).</span>
+            </div>
+            <div class="form-group-pos">
+              <label class="form-label-pos">Contact Number <span class="req">*</span></label>
+              <input type="tel" id="custPhone" class="input-pos" placeholder="e.g. 0917-123-4567" required>
+              <span id="custPhoneError" class="field-error-msg" style="display: none;">Please enter a valid PH mobile number (e.g. 0917-123-4567).</span>
+            </div>
+          </div>
+
+          <div class="form-group-pos">
+            <label class="form-label-pos">Delivery Address <span class="req">*</span></label>
+            <input type="text" id="custAddress" class="input-pos" placeholder="e.g. Unit/House #, Street, Barangay, City, Province" required>
+          </div>
+
+          <div class="modal-two-col">
+            <div class="form-group-pos">
+              <label class="form-label-pos">Courier <span class="req">*</span></label>
+              <select id="custCourier" class="select-pos" required disabled>
+                <option value="Lalamove" selected>Lalamove</option>
+              </select>
+            </div>
+            <div class="form-group-pos">
+              <label class="form-label-pos">Payment Option <span class="req">*</span></label>
+              <select id="custPayment" class="select-pos" required disabled>
+                <option value="GCash" selected>GCash</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- GCash Payment Details -->
+          <div class="gcash-payment-box">
+            <div class="gcash-payment-header">
+              <span class="gcash-payment-brand">GCash</span>
+              <span class="gcash-payment-label">Send payment to:</span>
+            </div>
+            <div class="gcash-payment-row">
+              <span class="gcash-payment-key">Number</span>
+              <span class="gcash-payment-value">0995 815 6660</span>
+            </div>
+            <div class="gcash-payment-row">
+              <span class="gcash-payment-key">Name</span>
+              <span class="gcash-payment-value">JOSH RIAN MARCO ORTUA</span>
+            </div>
+            <div class="gcash-qr-wrap">
+              <img src="/images/gcash.jpeg" alt="GCash QR Code" class="gcash-qr-img">
+            </div>
+            <p class="gcash-payment-note">Scan the QR code or pay the Grand Total below to the GCash account above, then attach your receipt screenshot.</p>
+          </div>
+
+          <!-- Payment Receipt screenshot: required before an order can be placed -->
+          <div class="form-group-pos">
+            <label class="form-label-pos">Payment Confirmation / Receipt Screenshot <span class="req">*</span></label>
+            <div class="pos-upload-box" id="receiptUploadBox" tabindex="0">
+              <div class="pos-upload-title">Tap to attach receipt screenshot (or Ctrl+V)</div>
+              <div class="pos-upload-sub">Auto-verified in admin records</div>
+              <input type="file" id="receiptFile" accept="image/*" style="display: none;">
+            </div>
+            <div id="receiptPreview" class="pos-receipt-preview" style="display: none;">
+              <img id="receiptPreviewImg" src="" alt="Receipt">
+              <span id="receiptPreviewName" class="pos-receipt-name"></span>
+              <button type="button" id="clearReceiptBtn" class="pos-receipt-clear">Remove</button>
+            </div>
+            <span id="receiptError" class="field-error-msg" style="display: none;">Please attach a screenshot of your payment receipt.</span>
+          </div>
+
+          <div class="pos-payment-summary-box">
+            <div class="summary-line-modal">
+              <span>Grand Total:</span>
+              <strong id="modalTotalCharge" style="font-size: 1.25rem; color: #e11d48;">₱0.00</strong>
+            </div>
+          </div>
+
+          <button type="submit" id="submitOrderBtn" class="pos-submit-charge-btn">
+            Confirm & Place Order
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SUCCESS CONFIRMATION MODAL ================= -->
+  <div id="successModal" class="pos-modal-backdrop">
+    <div class="pos-modal-card" style="max-width: 440px; text-align: center;">
+      <div class="pos-modal-body" style="padding: 2.5rem 1.75rem;">
+        <div class="pos-success-icon-wrap">
+          <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#e11d48" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <h3 class="pos-success-title">Order Placed Successfully!</h3>
+        <p class="pos-success-sub">Your order has been logged directly to the admin terminal.</p>
+
+        <div class="pos-ticket-receipt">
+          <div class="ticket-row">
+            <span>Ticket Number:</span>
+            <strong id="successOrderId" style="color: #e11d48;">#0000</strong>
+          </div>
+          <div class="ticket-row">
+            <span>Customer:</span>
+            <span id="successCustomerName">Customer</span>
+          </div>
+          <div class="ticket-row">
+            <span>Total Amount:</span>
+            <strong id="successTotal">₱0.00</strong>
+          </div>
+          <div class="ticket-row">
+            <span>Courier:</span>
+            <span id="successCourier">Lalamove</span>
+          </div>
+        </div>
+
+        <a href="#" id="successTrackLink" target="_blank" rel="noopener" class="pos-btn-track">
+          Click here to view your order status
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+        </a>
+
+        <button type="button" id="successDoneBtn" class="pos-btn-done">Done / New Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PRODUCT OPTIONS MODAL (opens on every "+" click) ================= -->
+  <div id="productOptionsModal" class="pos-modal-backdrop">
+    <div class="pos-modal-card options-modal-card">
+      <div class="pos-modal-header">
+        <h3 class="pos-modal-title">Product Options</h3>
+        <button type="button" class="pos-modal-close" id="closeOptionsModalBtn">&times;</button>
+      </div>
+
+      <div class="pos-modal-body options-modal-body">
+        <div class="options-product-info">
+          <img id="optionsProdImg" src="" alt="" class="options-prod-thumb" style="cursor: pointer;" title="View all photos">
+          <div>
+            <div id="optionsProdTitle" class="options-prod-title">Product</div>
+            <div id="optionsProdPrice" class="options-prod-price">₱0.00</div>
+          </div>
+        </div>
+
+        <!-- Card Number section: only shown for products with card numbering enabled -->
+        <div id="optionsCardNumberSection" class="options-section" style="display: none;">
+          <div class="options-section-label">Card Number</div>
+
+          <input type="number" id="cardNumberSearchInput" class="input-pos card-number-search" placeholder="Search card number...">
+
+          <div class="card-number-stepper-row">
+            <button type="button" id="cardNumberPrevBtn" class="card-number-nav-btn" title="Previous number">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="card-number-display">
+              <span id="cardNumberCurrent">1</span>
+              <span class="card-number-range">/ <span id="cardNumberRangeEnd">499</span></span>
+            </div>
+            <button type="button" id="cardNumberNextBtn" class="card-number-nav-btn" title="Next number">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+
+          <div id="cardNumberStatusLine" class="card-number-status">Checking availability...</div>
+        </div>
+
+        <!-- Quantity: editable for plain products; hidden entirely for numbered
+             ones, where the hint below explains why instead -->
+        <div class="options-section">
+          <div id="optionsQtyLabel" class="options-section-label">Quantity</div>
+          <div id="optionsQtyStepperWrap" class="modal-qty-stepper options-qty-stepper">
+            <button type="button" id="optionsQtyMinusBtn" class="modal-qty-btn">−</button>
+            <span class="modal-qty-val" id="optionsQtyVal">1</span>
+            <button type="button" id="optionsQtyPlusBtn" class="modal-qty-btn">+</button>
+          </div>
+          <div id="optionsQtyHint" class="form-hint-pos" style="display: none;">Each card number is unique — quantity is fixed to 1.</div>
+        </div>
+      </div>
+
+      <div class="options-modal-footer">
+        <button type="button" id="optionsAddToCartBtn" class="btn-number-picker-add">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox Modal (shows the product's full photo gallery, not just one image) -->
+  <div id="lightboxModal" class="lightbox-modal">
+    <div style="position: relative;">
+      <button id="closeLightboxBtn" class="lightbox-close">&times;</button>
+      <button id="lightboxPrevBtn" class="lightbox-nav-btn lightbox-prev" title="Previous photo">&lsaquo;</button>
+      <img id="lightboxImg" class="lightbox-img" src="" alt="Zoom preview">
+      <button id="lightboxNextBtn" class="lightbox-nav-btn lightbox-next" title="Next photo">&rsaquo;</button>
+      <div id="lightboxCounter" class="lightbox-counter"></div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="/js/api.js?v=3.6"></script>
+  <script src="/js/app.js?v=3.6"></script>
+</body>
+</html>
