@@ -231,9 +231,11 @@
           <div class="modal-two-col">
             <div class="form-group-pos">
               <label class="form-label-pos">Courier <span class="req">*</span></label>
-              <select id="custCourier" class="select-pos" required disabled>
+              <select id="custCourier" class="select-pos" required>
                 <option value="Lalamove" selected>Lalamove</option>
+                <option value="J&T Express">J&amp;T Express</option>
               </select>
+              <span id="courierHint" class="form-hint-pos"></span>
             </div>
             <div class="form-group-pos">
               <label class="form-label-pos">Payment Option <span class="req">*</span></label>
@@ -241,6 +243,18 @@
                 <option value="GCash" selected>GCash</option>
               </select>
             </div>
+          </div>
+
+          <!-- Shown only when J&T Express is selected -->
+          <div class="form-group-pos" id="custShippingRegionGroup" style="display: none;">
+            <label class="form-label-pos">Shipping Region <span class="req">*</span></label>
+            <select id="custShippingRegion" class="select-pos">
+              <option value="" selected disabled>Select region...</option>
+              <option value="Luzon">Luzon</option>
+              <option value="Visayas">Visayas</option>
+              <option value="Mindanao">Mindanao</option>
+            </select>
+            <span id="custShippingRegionError" class="field-error-msg" style="display: none;">Please select your shipping region.</span>
           </div>
 
           <!-- GCash Payment Details -->

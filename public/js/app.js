@@ -70,6 +70,10 @@ const DOM = {
   custPhoneError: document.getElementById('custPhoneError'),
   custAddress: document.getElementById('custAddress'),
   custCourier: document.getElementById('custCourier'),
+  courierHint: document.getElementById('courierHint'),
+  custShippingRegionGroup: document.getElementById('custShippingRegionGroup'),
+  custShippingRegion: document.getElementById('custShippingRegion'),
+  custShippingRegionError: document.getElementById('custShippingRegionError'),
   custPayment: document.getElementById('custPayment'),
   modalTotalCharge: document.getElementById('modalTotalCharge'),
   receiptUploadBox: document.getElementById('receiptUploadBox'),
@@ -126,6 +130,45 @@ const DOM = {
 // Formatting Helper
 function formatPrice(amount) {
   return '₱' + Number(amount || 0).toFixed(2);
+}
+
+// J&T Express charges a flat fee by region (mirrors the server, which is
+// the actual authority on the charged amount — this is just for the live
+// total preview). Lalamove has no fee here since that's paid to the rider
+// directly on delivery, never added to the order total.
+const SHIPPING_FEES = { Luzon: 75, Visayas: 90, Mindanao: 120 };
+
+function getSelectedShippingFee() {
+  const courier = DOM.custCourier ? DOM.custCourier.value : 'Lalamove';
+  if (courier !== 'J&T Express') return 0;
+  const region = DOM.custShippingRegion ? DOM.custShippingRegion.value : '';
+  return SHIPPING_FEES[region] || 0;
+}
+
+function getCartSubtotal() {
+  let subtotal = 0;
+  for (const item of Object.values(posState.cart)) {
+    subtotal += item.price * item.qty;
+  }
+  return subtotal;
+}
+
+function updateCheckoutGrandTotal() {
+  if (!DOM.modalTotalCharge) return;
+  DOM.modalTotalCharge.innerText = formatPrice(getCartSubtotal() + getSelectedShippingFee());
+}
+
+// Toggle the region picker + explanatory hint whenever the courier changes.
+function updateCourierUI() {
+  const courier = DOM.custCourier ? DOM.custCourier.value : 'Lalamove';
+  const isJnt = courier === 'J&T Express';
+  if (DOM.custShippingRegionGroup) DOM.custShippingRegionGroup.style.display = isJnt ? 'block' : 'none';
+  if (DOM.courierHint) {
+    DOM.courierHint.innerText = isJnt
+      ? 'Select your region below — the shipping fee will be added to your total.'
+      : 'Shipping fee is paid directly to the rider upon delivery.';
+  }
+  updateCheckoutGrandTotal();
 }
 
 // Toast Notifications
@@ -547,7 +590,7 @@ function updateAllCartViews() {
   // 1. Mobile Floating Drawer
   if (DOM.cartBarItemsCount) DOM.cartBarItemsCount.innerText = `${totalCount} ${totalCount === 1 ? 'Item' : 'Items'}`;
   if (DOM.cartBarTotalPrice) DOM.cartBarTotalPrice.innerText = formatPrice(totalPrice);
-  if (DOM.modalTotalCharge) DOM.modalTotalCharge.innerText = formatPrice(totalPrice);
+  updateCheckoutGrandTotal();
 
   if (DOM.mobileFloatingCartBar) {
     if (totalCount > 0) {
@@ -771,6 +814,18 @@ function setupEventListeners() {
     DOM.custPhone.addEventListener('input', () => clearFieldError(DOM.custPhone, DOM.custPhoneError));
   }
 
+  // Courier / Shipping Region: toggle the region picker + live Grand Total
+  if (DOM.custCourier) {
+    DOM.custCourier.addEventListener('change', updateCourierUI);
+    updateCourierUI(); // set initial state to match the default selection
+  }
+  if (DOM.custShippingRegion) {
+    DOM.custShippingRegion.addEventListener('change', () => {
+      clearFieldError(DOM.custShippingRegion, DOM.custShippingRegionError);
+      updateCheckoutGrandTotal();
+    });
+  }
+
   // Receipt Screenshot Upload UX
   if (DOM.receiptUploadBox && DOM.receiptFile) {
     DOM.receiptUploadBox.addEventListener('click', () => DOM.receiptFile.click());
@@ -927,9 +982,12 @@ async function handleOrderSubmit(e) {
   const customerName = DOM.custFullName.value.trim();
   const customerPhone = DOM.custPhone.value.trim();
   const customerAddress = DOM.custAddress.value.trim();
+  const courierValue = (DOM.custCourier && DOM.custCourier.value) ? DOM.custCourier.value : 'Lalamove';
+  const shippingRegion = DOM.custShippingRegion ? DOM.custShippingRegion.value : '';
 
   clearFieldError(DOM.custFullName, DOM.custFullNameError);
   clearFieldError(DOM.custPhone, DOM.custPhoneError);
+  clearFieldError(DOM.custShippingRegion, DOM.custShippingRegionError);
   if (DOM.receiptUploadBox) DOM.receiptUploadBox.classList.remove('has-error');
   if (DOM.receiptError) DOM.receiptError.style.display = 'none';
 
@@ -945,6 +1003,10 @@ async function handleOrderSubmit(e) {
   }
   if (!customerAddress) {
     showToast('Please fill out your delivery address', 'error');
+    hasValidationError = true;
+  }
+  if (courierValue === 'J&T Express' && !shippingRegion) {
+    setFieldError(DOM.custShippingRegion, DOM.custShippingRegionError);
     hasValidationError = true;
   }
   if (!posState.receiptFile) {
@@ -977,7 +1039,10 @@ async function handleOrderSubmit(e) {
   formData.append('customer_name', customerName);
   formData.append('customer_phone', customerPhone);
   formData.append('customer_address', customerAddress);
-  formData.append('courier', (DOM.custCourier && DOM.custCourier.value) ? DOM.custCourier.value : 'Lalamove');
+  formData.append('courier', courierValue);
+  if (courierValue === 'J&T Express') {
+    formData.append('shipping_region', shippingRegion);
+  }
   formData.append('payment_method', (DOM.custPayment && DOM.custPayment.value) ? DOM.custPayment.value : 'GCash');
   formData.append('items_json', JSON.stringify(items));
 
@@ -992,6 +1057,7 @@ async function handleOrderSubmit(e) {
     // Clear cart and form
     posState.cart = {};
     DOM.checkoutForm.reset();
+    updateCourierUI();
     DOM.checkoutModal.classList.remove('active');
     resetReceiptPreview();
     renderDishesGrid();

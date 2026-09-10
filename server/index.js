@@ -22,6 +22,11 @@ const STORE_NAME = process.env.STORE_NAME || 'Order Now Store';
 const PAYMENT_INSTRUCTIONS = process.env.PAYMENT_INSTRUCTIONS || 'GCash: 0995 815 6660\nName: JOSH RIAN MARCO ORTUA';
 const PENDING_ORDER_EXPIRY_HOURS = parseFloat(process.env.PENDING_ORDER_EXPIRY_HOURS || '48');
 
+// J&T Express charges a flat fee by region, collected upfront as part of the
+// order total. Lalamove has no entry here — its shipping fee is paid by the
+// customer directly to the rider on delivery, never through the system.
+const SHIPPING_FEES = { Luzon: 75, Visayas: 90, Mindanao: 120 };
+
 // Multer memory storage for direct streaming to cloud storage or local disk
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -159,6 +164,7 @@ app.post('/api/orders', upload.single('receipt'), async (req, res) => {
       customer_phone,
       customer_address,
       courier,
+      shipping_region,
       payment_method,
       items_json
     } = req.body;
@@ -178,6 +184,20 @@ app.post('/api/orders', upload.single('receipt'), async (req, res) => {
     }
     if (!payment_method || !payment_method.trim()) {
       return res.status(400).json({ error: 'Payment method is required' });
+    }
+
+    // Shipping fee is resolved authoritatively here, never trusted from the
+    // client. J&T Express charges a flat fee by region, collected upfront as
+    // part of the order total; Lalamove has no fee added here since that's
+    // paid by the customer directly to the rider on delivery.
+    let finalCourier = courier;
+    let shipping_fee = 0;
+    if (courier === 'J&T Express') {
+      if (!shipping_region || !SHIPPING_FEES[shipping_region]) {
+        return res.status(400).json({ error: 'Please select a shipping region (Luzon, Visayas, or Mindanao) for J&T Express.' });
+      }
+      shipping_fee = SHIPPING_FEES[shipping_region];
+      finalCourier = `J&T Express (${shipping_region})`;
     }
 
     // Parse items (accepts items_json or items field)
@@ -230,7 +250,6 @@ app.post('/api/orders', upload.single('receipt'), async (req, res) => {
 
     // Calculate totals
     const subtotal = items.reduce((sum, item) => sum + (Number(item.price) * Number(item.qty)), 0);
-    const shipping_fee = DEFAULT_SHIPPING_FEE;
     const total = subtotal + shipping_fee;
     const orderId = 'ORD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
 
@@ -240,7 +259,7 @@ app.post('/api/orders', upload.single('receipt'), async (req, res) => {
       customer_name: customer_name.trim(),
       customer_phone: customer_phone.trim(),
       customer_address: customer_address.trim(),
-      courier,
+      courier: finalCourier,
       payment_method,
       receipt_url,
       subtotal,
@@ -255,7 +274,7 @@ app.post('/api/orders', upload.single('receipt'), async (req, res) => {
       customer_name: customer_name.trim(),
       customer_phone: customer_phone.trim(),
       customer_address: customer_address.trim(),
-      courier,
+      courier: finalCourier,
       payment_method,
       receipt_url,
       subtotal,
@@ -270,7 +289,7 @@ app.post('/api/orders', upload.single('receipt'), async (req, res) => {
         id: orderId,
         customer_name,
         total,
-        courier,
+        courier: finalCourier,
         payment_method,
         receipt_url
       }
