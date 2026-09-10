@@ -104,6 +104,7 @@ const DOM = {
   optionsProdImg: document.getElementById('optionsProdImg'),
   optionsProdTitle: document.getElementById('optionsProdTitle'),
   optionsProdPrice: document.getElementById('optionsProdPrice'),
+  optionsProdDescription: document.getElementById('optionsProdDescription'),
   optionsCardNumberSection: document.getElementById('optionsCardNumberSection'),
   cardNumberSearchInput: document.getElementById('cardNumberSearchInput'),
   cardNumberPrevBtn: document.getElementById('cardNumberPrevBtn'),
@@ -284,8 +285,8 @@ function renderDishesGrid() {
       <div class="dish-img-box" onclick="openProductGallery('${p.id}')">
         <img src="${p.image_url}" alt="${p.title}" class="dish-photo" loading="lazy">
       </div>
-      <h3 class="dish-title-text" title="${p.title}">${p.title}</h3>
-      ${p.description ? `<p class="dish-desc-text">${p.description}</p>` : ''}
+      <h3 class="dish-title-text" title="Click to view full details" onclick="openProductOptionsModal('${p.id}')">${p.title}</h3>
+      ${p.description ? `<p class="dish-desc-text" title="Click to view full details" onclick="openProductOptionsModal('${p.id}')">${p.description}</p>` : ''}
       <div class="card-bottom-bar">
         ${isNumbered ? '' : `<span class="card-price-display">${formatPrice(p.price)}</span>`}
         ${actionHtml}
@@ -331,6 +332,10 @@ window.openProductOptionsModal = function(productId) {
   // Numbered products have no flat price — show a placeholder until the
   // selected card number's real price loads, instead of flashing "$0.00".
   if (DOM.optionsProdPrice) DOM.optionsProdPrice.innerText = isNumbered ? 'Loading price...' : formatPrice(prod.price);
+  if (DOM.optionsProdDescription) {
+    DOM.optionsProdDescription.innerText = prod.description || '';
+    DOM.optionsProdDescription.style.display = prod.description ? 'block' : 'none';
+  }
 
   if (isNumbered) {
     if (DOM.optionsCardNumberSection) DOM.optionsCardNumberSection.style.display = 'block';
