@@ -52,6 +52,7 @@ const DOM = {
   ordersEmptyState: document.getElementById('ordersEmptyState'),
   ordersCountBadge: document.getElementById('ordersCountBadge'),
   exportCsvBtn: document.getElementById('exportCsvBtn'),
+  exportExcelBtn: document.getElementById('exportExcelBtn'),
   clearOrdersBtn: document.getElementById('clearOrdersBtn'),
 
   // Inventory
@@ -1553,6 +1554,11 @@ function handleExportCsv() {
   window.open(exportUrl, '_blank');
 }
 
+function handleExportExcel() {
+  const exportUrl = API.getExportExcelUrl();
+  window.open(exportUrl, '_blank');
+}
+
 // Clear all customer transactions
 async function handleClearCustomerTransactions() {
   const count = adminState.orders ? adminState.orders.length : 0;
@@ -1710,6 +1716,7 @@ function setupEventListeners() {
 
   // CSV Export
   DOM.exportCsvBtn.addEventListener('click', handleExportCsv);
+  if (DOM.exportExcelBtn) DOM.exportExcelBtn.addEventListener('click', handleExportExcel);
 
   // Clear All Orders
   if (DOM.clearOrdersBtn) {

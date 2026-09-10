@@ -327,5 +327,9 @@ const API = {
 
   getExportCsvUrl() {
     return `/api/admin/orders/export?admin_token=${encodeURIComponent(this.getAdminToken())}`;
+  },
+
+  getExportExcelUrl() {
+    return `/api/admin/orders/export-excel?admin_token=${encodeURIComponent(this.getAdminToken())}`;
   }
 };

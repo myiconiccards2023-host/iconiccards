@@ -4,6 +4,7 @@ import multer from 'multer';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import ExcelJS from 'exceljs';
 import { db } from './db.js';
 import { storage } from './storage.js';
 import { sendOrderToGoogleSheets, updateOrderStatusInGoogleSheets } from './sheets.js';
@@ -745,6 +746,77 @@ app.get('/api/admin/orders/export', requireAdmin, async (req, res) => {
   } catch (error) {
     console.error('Error exporting CSV:', error);
     res.status(500).json({ error: 'Failed to export CSV' });
+  }
+});
+
+// Export all orders to a real Excel (.xlsx) workbook
+app.get('/api/admin/orders/export-excel', requireAdmin, async (req, res) => {
+  try {
+    const orders = await db.getOrders();
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'ICONIC Admin';
+    workbook.created = new Date();
+    const sheet = workbook.addWorksheet('Orders');
+
+    sheet.columns = [
+      { header: 'Order ID', key: 'orderId', width: 22 },
+      { header: 'Date', key: 'date', width: 20 },
+      { header: 'Status', key: 'status', width: 12 },
+      { header: 'Name of Product', key: 'product', width: 40 },
+      { header: 'Card Number', key: 'cardNumber', width: 12 },
+      { header: 'Price', key: 'price', width: 12 },
+      { header: 'Quantity', key: 'qty', width: 10 },
+      { header: 'Phone Number', key: 'phone', width: 16 },
+      { header: 'Location / Address', key: 'address', width: 32 },
+      { header: 'Courier', key: 'courier', width: 22 },
+      { header: 'Mode of Payment', key: 'payment', width: 16 },
+      { header: 'Subtotal', key: 'subtotal', width: 12 },
+      { header: 'Shipping', key: 'shipping', width: 12 },
+      { header: 'Grand Total', key: 'total', width: 14 },
+      { header: 'Photo of Receipt', key: 'receipt', width: 40 }
+    ];
+
+    const headerRow = sheet.getRow(1);
+    headerRow.font = { bold: true };
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1EAE2' } };
+
+    orders.forEach(o => {
+      const items = Array.isArray(o.items) && o.items.length > 0 ? o.items : [{ title: 'N/A', price: o.subtotal, qty: 1 }];
+      items.forEach((item, index) => {
+        sheet.addRow({
+          orderId: o.id,
+          date: o.created_at ? new Date(o.created_at) : '',
+          status: o.status || 'Pending',
+          product: item.title,
+          cardNumber: item.card_number !== undefined && item.card_number !== null ? `#${item.card_number}` : '',
+          price: Number(item.price) || 0,
+          qty: Number(item.qty) || 0,
+          phone: o.customer_phone,
+          address: o.customer_address,
+          courier: o.courier,
+          payment: o.payment_method,
+          subtotal: index === 0 ? (Number(o.subtotal) || 0) : '',
+          shipping: index === 0 ? (Number(o.shipping_fee) || 0) : '',
+          total: index === 0 ? (Number(o.total) || 0) : '',
+          receipt: o.receipt_url || ''
+        });
+      });
+    });
+
+    sheet.getColumn('date').numFmt = 'yyyy-mm-dd hh:mm';
+    ['price', 'subtotal', 'shipping', 'total'].forEach(key => {
+      sheet.getColumn(key).numFmt = '#,##0.00';
+    });
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="orders-batch-${Date.now()}.xlsx"`);
+
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error('Error exporting Excel:', error);
+    res.status(500).json({ error: 'Failed to export Excel file' });
   }
 });
 
