@@ -866,7 +866,17 @@ function setupEventListeners() {
 }
 
 // Receipt Preview Helpers
+
+// Vercel serverless functions hard-cap request bodies around ~4.5MB — stay
+// safely under that so an oversized receipt fails with a clear message here
+// instead of a cryptic 413 from the platform after the request is sent.
+const MAX_RECEIPT_BYTES = 4 * 1024 * 1024;
+
 function setReceiptPreview(file) {
+  if (file.size > MAX_RECEIPT_BYTES) {
+    showToast('That receipt image is too large (max 4MB). Please use a smaller screenshot.', 'error');
+    return;
+  }
   posState.receiptFile = file;
   DOM.receiptPreviewName.innerText = file.name || 'Receipt Image';
   DOM.receiptPreviewImg.src = URL.createObjectURL(file);

@@ -1113,8 +1113,21 @@ async function handleAddEditPhotos(files) {
   const id = adminState.editState.productId;
   if (!id || !files || files.length === 0) return;
 
+  files = Array.from(files);
+  const tooBig = files.find(f => f.size > MAX_UPLOAD_BYTES);
+  if (tooBig) {
+    showToast(`"${tooBig.name}" is too large (max 4MB per photo). Please use a smaller image.`, 'error');
+    files = files.filter(f => f.size <= MAX_UPLOAD_BYTES);
+    if (files.length === 0) return;
+  }
+  const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+  if (totalSize > MAX_UPLOAD_BYTES) {
+    showToast('These photos are too large to upload together (max 4MB total). Try adding fewer or smaller photos.', 'error');
+    return;
+  }
+
   const formData = new FormData();
-  Array.from(files).forEach(file => formData.append('photos', file));
+  files.forEach(file => formData.append('photos', file));
 
   try {
     DOM.editAddPhotosBtn.disabled = true;
@@ -1588,7 +1601,26 @@ async function handleClearCustomerTransactions() {
 }
 
 // Photo Preview Helpers (multi-photo staging for the Add Product form)
+// Vercel serverless functions hard-cap request bodies around ~4.5MB — stay
+// safely under that so uploads fail with a clear message here instead of a
+// cryptic 413 from the platform after the request is already sent.
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+
 function addProductPhotoFiles(files) {
+  const tooBig = files.find(f => f.size > MAX_UPLOAD_BYTES);
+  if (tooBig) {
+    showToast(`"${tooBig.name}" is too large (max 4MB per photo). Please use a smaller image.`, 'error');
+    files = files.filter(f => f.size <= MAX_UPLOAD_BYTES);
+    if (files.length === 0) return;
+  }
+
+  const currentTotal = adminState.productFiles.reduce((sum, f) => sum + f.size, 0);
+  const newTotal = files.reduce((sum, f) => sum + f.size, 0);
+  if (currentTotal + newTotal > MAX_UPLOAD_BYTES) {
+    showToast('These photos are too large to upload together (max 4MB total). Try adding fewer or smaller photos.', 'error');
+    return;
+  }
+
   for (const file of files) {
     adminState.productFiles.push(file);
   }

@@ -1,6 +1,24 @@
 /**
  * API client for Order Now backend
  */
+
+// Not every non-2xx response is JSON — Vercel's platform layer rejects
+// oversized request bodies (413) with a plain-text body before our Express
+// code ever runs, and `res.json()` on that throws a cryptic parse error
+// instead of a usable message. Parse defensively and fall back by status.
+async function parseApiResponse(res) {
+  const text = await res.text();
+  if (!text) return {};
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    if (res.status === 413) {
+      return { error: 'That file is too large. Please use an image under 4MB and try again.' };
+    }
+    return { error: `Server error (${res.status}). Please try again.` };
+  }
+}
+
 const API = {
   adminToken: localStorage.getItem('order_now_admin_token') || '',
 
@@ -31,7 +49,7 @@ const API = {
 
   async getCardStatus(productId, cardNumber) {
     const res = await fetch(`/api/products/${encodeURIComponent(productId)}/cards/${cardNumber}`);
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to load card status');
     }
@@ -43,7 +61,7 @@ const API = {
       method: 'POST',
       body: formData
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to submit order');
     }
@@ -65,7 +83,7 @@ const API = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Login failed');
     }
@@ -81,7 +99,7 @@ const API = {
       },
       body: formData
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to add product');
     }
@@ -96,7 +114,7 @@ const API = {
       },
       body: formData
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to update product');
     }
@@ -111,7 +129,7 @@ const API = {
       },
       body: formData
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to add photos');
     }
@@ -127,7 +145,7 @@ const API = {
       },
       body: JSON.stringify({ url })
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to remove photo');
     }
@@ -143,7 +161,7 @@ const API = {
       },
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to update card number range');
     }
@@ -155,7 +173,7 @@ const API = {
     const res = await fetch(`/api/admin/products/${encodeURIComponent(productId)}/cards?${params.toString()}`, {
       headers: { 'x-admin-token': this.getAdminToken() }
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to load card numbers');
     }
@@ -171,7 +189,7 @@ const API = {
       },
       body: JSON.stringify({ status })
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to update card status');
     }
@@ -187,7 +205,7 @@ const API = {
       },
       body: JSON.stringify({ prices })
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to set card prices');
     }
@@ -199,7 +217,7 @@ const API = {
       method: 'POST',
       headers: { 'x-admin-token': this.getAdminToken() }
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to mark order as paid');
     }
@@ -215,7 +233,7 @@ const API = {
       },
       body: JSON.stringify({ reason })
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to reject payment');
     }
@@ -229,7 +247,7 @@ const API = {
         'x-admin-token': this.getAdminToken()
       }
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to delete product');
     }
@@ -242,7 +260,7 @@ const API = {
         'x-admin-token': this.getAdminToken()
       }
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to load orders');
     }
@@ -258,7 +276,7 @@ const API = {
       },
       body: JSON.stringify({ status })
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to update status');
     }
@@ -272,7 +290,7 @@ const API = {
         'x-admin-token': this.getAdminToken()
       }
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to reset batch');
     }
@@ -286,7 +304,7 @@ const API = {
         'x-admin-token': this.getAdminToken()
       }
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to clear customer transactions');
     }
@@ -300,7 +318,7 @@ const API = {
         'x-admin-token': this.getAdminToken()
       }
     });
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'Failed to delete order');
     }
