@@ -23,10 +23,18 @@ if (isSupabaseConfigured) {
   console.log(`[Supabase Storage] Configured for bucket: ${bucketName}`);
 }
 
-// Local uploads directory fallback
+// Local uploads directory fallback — only needed when Supabase Storage isn't
+// configured. Wrapped in try/catch because serverless platforms (Vercel, etc.)
+// ship a read-only filesystem; without this guard, importing this module would
+// throw on every cold start and take the whole app down even when Supabase
+// Storage is what's actually being used.
 const uploadsDir = path.join(__dirname, '..', 'public', 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (err) {
+  console.warn('[Storage] Could not create local uploads directory (expected on read-only/serverless filesystems):', err.message);
 }
 
 export const storage = {

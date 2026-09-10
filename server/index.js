@@ -744,14 +744,24 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Order Now app is running at http://localhost:${PORT}`);
-});
+// Serverless platforms (Vercel, etc.) import this module and call the
+// exported app directly as the request handler — they never run this file
+// with `node server/index.js` themselves, so app.listen() below is skipped
+// there and only matters for local dev / a traditional Node host.
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Order Now app is running at http://localhost:${PORT}`);
+  });
 
-// Periodic sweep: auto-cancel Pending orders whose payment was never verified
-// within PENDING_ORDER_EXPIRY_HOURS, releasing their numbered cards back to Available.
-setInterval(() => {
-  db.sweepExpiredPendingOrders(PENDING_ORDER_EXPIRY_HOURS).catch(err =>
-    console.error('[Pending order expiry sweep] error:', err.message)
-  );
-}, 15 * 60 * 1000);
+  // Periodic sweep: auto-cancel Pending orders whose payment was never verified
+  // within PENDING_ORDER_EXPIRY_HOURS, releasing their numbered cards back to
+  // Available. Only meaningful on a long-running process — serverless function
+  // instances are too short-lived/ephemeral for setInterval to fire reliably.
+  setInterval(() => {
+    db.sweepExpiredPendingOrders(PENDING_ORDER_EXPIRY_HOURS).catch(err =>
+      console.error('[Pending order expiry sweep] error:', err.message)
+    );
+  }, 15 * 60 * 1000);
+}
+
+export default app;
