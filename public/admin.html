@@ -286,11 +286,19 @@
               <textarea id="newProductDescription" class="form-input" rows="2" placeholder="e.g. Limited edition numbered card, mint condition"></textarea>
             </div>
             <div class="form-group">
-              <label class="form-label" for="newProductCategory">Category <span class="required">*</span></label>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                <label class="form-label" for="newProductCategory" style="margin-bottom: 0.4rem;">Category <span class="required">*</span></label>
+                <button type="button" id="newProductAddCategoryBtn" style="background: none; border: none; color: var(--primary-accent); font-weight: 700; font-size: 0.78rem; cursor: pointer; padding: 0 0 0.4rem;">+ Add Category</button>
+              </div>
               <select id="newProductCategory" class="form-select" required>
                 <option value="Cards" selected>Cards</option>
                 <option value="All">All</option>
               </select>
+              <div id="newProductCategoryInputRow" style="display: none; gap: 0.5rem; margin-top: 0.5rem;">
+                <input type="text" id="newProductCategoryInput" class="form-input" placeholder="e.g. Keychains" style="flex: 1;">
+                <button type="button" id="newProductCategoryConfirmBtn" class="btn btn-primary btn-sm">Add</button>
+                <button type="button" id="newProductCategoryCancelBtn" class="btn btn-outline btn-sm">Cancel</button>
+              </div>
             </div>
             <div class="form-group" id="newProductPriceGroup">
               <label class="form-label" for="newProductPrice">Price (₱) <span class="required">*</span></label>
@@ -401,11 +409,19 @@
               <textarea id="editProductDescription" class="form-input" rows="2"></textarea>
             </div>
             <div class="form-group">
-              <label class="form-label" for="editProductCategory">Category <span class="required">*</span></label>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                <label class="form-label" for="editProductCategory" style="margin-bottom: 0.4rem;">Category <span class="required">*</span></label>
+                <button type="button" id="editProductAddCategoryBtn" style="background: none; border: none; color: var(--primary-accent); font-weight: 700; font-size: 0.78rem; cursor: pointer; padding: 0 0 0.4rem;">+ Add Category</button>
+              </div>
               <select id="editProductCategory" class="form-select" required>
                 <option value="Cards">Cards</option>
                 <option value="All">All</option>
               </select>
+              <div id="editProductCategoryInputRow" style="display: none; gap: 0.5rem; margin-top: 0.5rem;">
+                <input type="text" id="editProductCategoryInput" class="form-input" placeholder="e.g. Keychains" style="flex: 1;">
+                <button type="button" id="editProductCategoryConfirmBtn" class="btn btn-primary btn-sm">Add</button>
+                <button type="button" id="editProductCategoryCancelBtn" class="btn btn-outline btn-sm">Cancel</button>
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label" for="editProductPrice">Price (₱) <span class="required">*</span></label>

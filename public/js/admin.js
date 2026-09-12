@@ -64,6 +64,11 @@ const DOM = {
   newProductTitle: document.getElementById('newProductTitle'),
   newProductDescription: document.getElementById('newProductDescription'),
   newProductCategory: document.getElementById('newProductCategory'),
+  newProductAddCategoryBtn: document.getElementById('newProductAddCategoryBtn'),
+  newProductCategoryInputRow: document.getElementById('newProductCategoryInputRow'),
+  newProductCategoryInput: document.getElementById('newProductCategoryInput'),
+  newProductCategoryConfirmBtn: document.getElementById('newProductCategoryConfirmBtn'),
+  newProductCategoryCancelBtn: document.getElementById('newProductCategoryCancelBtn'),
   newProductPrice: document.getElementById('newProductPrice'),
   newProductPriceGroup: document.getElementById('newProductPriceGroup'),
   newProductStock: document.getElementById('newProductStock'),
@@ -93,6 +98,11 @@ const DOM = {
   editProductTitle: document.getElementById('editProductTitle'),
   editProductDescription: document.getElementById('editProductDescription'),
   editProductCategory: document.getElementById('editProductCategory'),
+  editProductAddCategoryBtn: document.getElementById('editProductAddCategoryBtn'),
+  editProductCategoryInputRow: document.getElementById('editProductCategoryInputRow'),
+  editProductCategoryInput: document.getElementById('editProductCategoryInput'),
+  editProductCategoryConfirmBtn: document.getElementById('editProductCategoryConfirmBtn'),
+  editProductCategoryCancelBtn: document.getElementById('editProductCategoryCancelBtn'),
   editProductPrice: document.getElementById('editProductPrice'),
   editProductStock: document.getElementById('editProductStock'),
   editProductStockGroup: document.getElementById('editProductStockGroup'),
@@ -388,11 +398,48 @@ async function loadAdminData() {
   await Promise.all([loadAdminProducts(), loadAdminOrders()]);
 }
 
+// Add a category to both the Add-Product and Edit-Product dropdowns (kept in
+// sync so a category created from either form is selectable from the other).
+// Skips it if a case-insensitive match already exists. Returns the option's
+// stored value (the original casing the user typed, or the existing match).
+function addCategoryOption(name) {
+  const trimmed = (name || '').trim();
+  if (!trimmed) return null;
+
+  const selects = [DOM.newProductCategory, DOM.editProductCategory].filter(Boolean);
+  let existingValue = null;
+  for (const select of selects) {
+    const match = Array.from(select.options).find(o => o.value.toLowerCase() === trimmed.toLowerCase());
+    if (match) { existingValue = match.value; break; }
+  }
+  const finalValue = existingValue || trimmed;
+
+  for (const select of selects) {
+    const alreadyThere = Array.from(select.options).some(o => o.value.toLowerCase() === finalValue.toLowerCase());
+    if (!alreadyThere) {
+      const opt = document.createElement('option');
+      opt.value = finalValue;
+      opt.textContent = finalValue;
+      select.appendChild(opt);
+    }
+  }
+  return finalValue;
+}
+
+// On every product load, make sure any category already in use by an
+// existing product (e.g. added from another admin session) is selectable.
+function syncCategoryOptionsFromProducts(products) {
+  const categories = new Set();
+  products.forEach(p => { if (p.category && p.category.trim()) categories.add(p.category.trim()); });
+  categories.forEach(cat => addCategoryOption(cat));
+}
+
 // Load Products
 async function loadAdminProducts() {
   try {
     const products = await API.getProducts();
     adminState.products = products;
+    syncCategoryOptionsFromProducts(products);
     if (DOM.adminTabProdCount) DOM.adminTabProdCount.innerText = products.length;
 
     DOM.adminProductsList.innerHTML = '';
@@ -1711,6 +1758,76 @@ function setupEventListeners() {
 
   // Add Product Form
   DOM.addProductForm.addEventListener('submit', handleAddProduct);
+
+  // "+ Add Category" — Add Product form
+  if (DOM.newProductAddCategoryBtn) {
+    DOM.newProductAddCategoryBtn.addEventListener('click', () => {
+      DOM.newProductCategoryInputRow.style.display = 'flex';
+      DOM.newProductCategoryInput.value = '';
+      DOM.newProductCategoryInput.focus();
+    });
+  }
+  if (DOM.newProductCategoryConfirmBtn) {
+    DOM.newProductCategoryConfirmBtn.addEventListener('click', () => {
+      const value = addCategoryOption(DOM.newProductCategoryInput.value);
+      if (!value) {
+        showToast('Please enter a category name', 'error');
+        return;
+      }
+      DOM.newProductCategory.value = value;
+      DOM.newProductCategoryInputRow.style.display = 'none';
+      DOM.newProductCategoryInput.value = '';
+    });
+  }
+  if (DOM.newProductCategoryCancelBtn) {
+    DOM.newProductCategoryCancelBtn.addEventListener('click', () => {
+      DOM.newProductCategoryInputRow.style.display = 'none';
+      DOM.newProductCategoryInput.value = '';
+    });
+  }
+  if (DOM.newProductCategoryInput) {
+    DOM.newProductCategoryInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        DOM.newProductCategoryConfirmBtn.click();
+      }
+    });
+  }
+
+  // "+ Add Category" — Edit Product modal
+  if (DOM.editProductAddCategoryBtn) {
+    DOM.editProductAddCategoryBtn.addEventListener('click', () => {
+      DOM.editProductCategoryInputRow.style.display = 'flex';
+      DOM.editProductCategoryInput.value = '';
+      DOM.editProductCategoryInput.focus();
+    });
+  }
+  if (DOM.editProductCategoryConfirmBtn) {
+    DOM.editProductCategoryConfirmBtn.addEventListener('click', () => {
+      const value = addCategoryOption(DOM.editProductCategoryInput.value);
+      if (!value) {
+        showToast('Please enter a category name', 'error');
+        return;
+      }
+      DOM.editProductCategory.value = value;
+      DOM.editProductCategoryInputRow.style.display = 'none';
+      DOM.editProductCategoryInput.value = '';
+    });
+  }
+  if (DOM.editProductCategoryCancelBtn) {
+    DOM.editProductCategoryCancelBtn.addEventListener('click', () => {
+      DOM.editProductCategoryInputRow.style.display = 'none';
+      DOM.editProductCategoryInput.value = '';
+    });
+  }
+  if (DOM.editProductCategoryInput) {
+    DOM.editProductCategoryInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        DOM.editProductCategoryConfirmBtn.click();
+      }
+    });
+  }
 
   // Batch Reset
   DOM.resetBatchBtn.addEventListener('click', handleBatchReset);
