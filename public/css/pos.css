@@ -899,12 +899,6 @@ html, body {
   margin-top: auto;
 }
 
-.card-price-display {
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: var(--text-dark);
-}
-
 /* Stepper: (-) count (+) */
 .card-stepper-wrap {
   display: flex;
@@ -966,31 +960,8 @@ html, body {
   transform: scale(0.95);
 }
 
-/* Initial (+) Button when quantity is zero */
-.btn-initial-add {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: none;
-  background: var(--primary-accent);
-  color: #ffffff;
-  font-size: 1.1rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.35);
-  transition: transform 0.15s, background-color 0.15s;
-}
-
-.btn-initial-add:hover {
-  background: var(--primary-accent-hover);
-  transform: scale(1.08);
-}
-
-/* Numbered products: no flat price shown on the card face (price depends on
-   the card number picked), so the action button takes the full row width. */
+/* No flat price is shown on the card face; price appears only in the
+   product-details view / options modal, or once the item is in the cart. */
 .btn-add-to-cart-text {
   width: 100%;
   height: 38px;

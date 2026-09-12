@@ -312,18 +312,16 @@ function renderDishesGrid() {
 
     let actionHtml;
     if (isSoldOut && !isSelected) {
-      actionHtml = `<span class="btn-sold-out-pill${isNumbered ? ' full-width' : ''}">Sold Out</span>`;
+      actionHtml = `<span class="btn-sold-out-pill full-width">Sold Out</span>`;
     } else if (isSelected) {
       actionHtml = `
-        <button type="button" class="btn-numbered-chip${isNumbered ? ' full-width' : ''}" onclick="openProductOptionsModal('${p.id}')" title="Edit selection">
+        <button type="button" class="btn-numbered-chip full-width" onclick="openProductOptionsModal('${p.id}')" title="Edit selection">
           ${cartQty} in cart
           <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </button>
       `;
-    } else if (isNumbered) {
-      actionHtml = `<button type="button" class="btn-add-to-cart-text" onclick="openProductOptionsModal('${p.id}')">Add to Cart</button>`;
     } else {
-      actionHtml = `<button type="button" class="btn-initial-add" onclick="openProductOptionsModal('${p.id}')" title="Add to cart">+</button>`;
+      actionHtml = `<button type="button" class="btn-add-to-cart-text" onclick="openProductOptionsModal('${p.id}')">Add to Cart</button>`;
     }
 
     card.innerHTML = `
@@ -334,7 +332,6 @@ function renderDishesGrid() {
       <h3 class="dish-title-text" title="Click to view full details" onclick="openProductOptionsModal('${p.id}')">${p.title}</h3>
       ${p.description ? `<p class="dish-desc-text" title="Click to view full details" onclick="openProductOptionsModal('${p.id}')">${p.description}</p>` : ''}
       <div class="card-bottom-bar">
-        ${isNumbered ? '' : `<span class="card-price-display">${formatPrice(p.price)}</span>`}
         ${actionHtml}
       </div>
     `;
