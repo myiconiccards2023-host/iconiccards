@@ -694,6 +694,88 @@ textarea.form-input {
   gap: 0.45rem;
 }
 
+/* Order rows open the full-detail modal on click (action buttons inside
+   stop propagation so they still work on their own). */
+.order-row-clickable {
+  cursor: pointer;
+}
+
+/* ================= ORDER DETAILS MODAL ================= */
+.order-detail-section {
+  margin-bottom: 1.35rem;
+}
+
+.order-detail-section:last-child {
+  margin-bottom: 0;
+}
+
+.order-detail-section-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+}
+
+.order-detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.85rem;
+}
+
+.order-detail-row:last-child {
+  border-bottom: none;
+}
+
+.order-detail-label {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.order-detail-value {
+  color: var(--text-dark);
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+}
+
+.order-detail-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed var(--border-light);
+}
+
+.order-detail-item-row:last-child {
+  border-bottom: none;
+}
+
+.order-detail-total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  padding-top: 0.6rem;
+  margin-top: 0.4rem;
+  border-top: 2px solid var(--border-subtle);
+}
+
+.order-detail-receipt-img {
+  max-width: 100%;
+  max-height: 320px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  display: block;
+}
+
 .order-action-stack .btn {
   width: 100%;
 }

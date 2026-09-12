@@ -55,6 +55,12 @@ const DOM = {
   exportExcelBtn: document.getElementById('exportExcelBtn'),
   clearOrdersBtn: document.getElementById('clearOrdersBtn'),
 
+  // Order Details Modal
+  orderDetailsModal: document.getElementById('orderDetailsModal'),
+  orderDetailsBackdrop: document.getElementById('orderDetailsBackdrop'),
+  closeOrderDetailsBtn: document.getElementById('closeOrderDetailsBtn'),
+  orderDetailsBody: document.getElementById('orderDetailsBody'),
+
   // Inventory
   adminProductsList: document.getElementById('adminProductsList'),
   resetBatchBtn: document.getElementById('resetBatchBtn'),
@@ -596,6 +602,8 @@ async function loadAdminOrders(isSilent = false) {
 
     orders.forEach(o => {
       const tr = document.createElement('tr');
+      tr.className = 'order-row-clickable';
+      tr.setAttribute('data-order-id', o.id);
       const orderDate = new Date(o.created_at).toLocaleString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -721,6 +729,99 @@ async function loadAdminOrders(isSilent = false) {
   } catch (err) {
     showToast('Failed to load orders: ' + err.message, 'error');
   }
+}
+
+// Full, untruncated view of a single order — opened by clicking its table row.
+function renderOrderDetailsHtml(o) {
+  const orderDate = new Date(o.created_at).toLocaleString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+  });
+
+  let statusBadgeClass = 'status-pending';
+  if (o.status === 'Paid') statusBadgeClass = 'status-paid';
+  if (o.status === 'Shipped') statusBadgeClass = 'status-shipped';
+  if (o.status === 'Cancelled') statusBadgeClass = 'status-cancelled';
+
+  const itemsHtml = Array.isArray(o.items) && o.items.length > 0
+    ? o.items.map(it => `
+        <div class="order-detail-item-row">
+          <div>
+            <div style="font-weight: 700;">${it.title}</div>
+            ${it.card_number !== undefined && it.card_number !== null
+              ? `<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Card #${it.card_number}</div>`
+              : ''}
+          </div>
+          <div style="text-align: right; white-space: nowrap;">
+            <div>&times;${it.quantity}</div>
+            <div style="font-weight: 700;">${formatPHP(it.price * it.quantity)}</div>
+          </div>
+        </div>
+      `).join('')
+    : '<span style="color: var(--text-muted);">Details unavailable</span>';
+
+  const rejectionHtml = o.rejection_reason
+    ? `<div class="order-detail-row"><span class="order-detail-label">Rejection Reason</span><span class="order-detail-value" style="color: #ef4444;">${o.rejection_reason}</span></div>`
+    : '';
+
+  const orderSourceHtml = o.order_source
+    ? `<div class="order-detail-row"><span class="order-detail-label">Ordered From</span><span class="order-detail-value">${o.order_source}${o.order_source_name ? ' (' + o.order_source_name + ')' : ''}</span></div>`
+    : '';
+
+  const receiptHtml = o.receipt_url
+    ? `<img src="${o.receipt_url}" class="order-detail-receipt-img" alt="Receipt" onclick="openLightbox('${o.receipt_url}')">`
+    : '<span style="color: var(--text-muted); font-size: 0.85rem;">No receipt uploaded</span>';
+
+  return `
+    <div class="order-detail-section">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.5rem;">
+        <div style="font-weight: 800; font-family: monospace; font-size: 1rem;">#${o.id}</div>
+        <span class="status-badge ${statusBadgeClass}">${o.status}</span>
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">${orderDate}</div>
+      ${rejectionHtml}
+    </div>
+
+    <div class="order-detail-section">
+      <div class="order-detail-section-title">Customer</div>
+      <div class="order-detail-row"><span class="order-detail-label">Name</span><span class="order-detail-value">${o.customer_name}</span></div>
+      <div class="order-detail-row"><span class="order-detail-label">Phone</span><span class="order-detail-value">${o.customer_phone}</span></div>
+      <div class="order-detail-row"><span class="order-detail-label">Address</span><span class="order-detail-value">${o.customer_address}</span></div>
+      ${orderSourceHtml}
+    </div>
+
+    <div class="order-detail-section">
+      <div class="order-detail-section-title">Items Ordered</div>
+      ${itemsHtml}
+    </div>
+
+    <div class="order-detail-section">
+      <div class="order-detail-section-title">Courier &amp; Payment</div>
+      <div class="order-detail-row"><span class="order-detail-label">Courier</span><span class="order-detail-value">${o.courier}</span></div>
+      <div class="order-detail-row"><span class="order-detail-label">Payment Method</span><span class="order-detail-value">${o.payment_method}</span></div>
+    </div>
+
+    <div class="order-detail-section">
+      <div class="order-detail-section-title">Totals</div>
+      <div class="order-detail-row"><span class="order-detail-label">Subtotal</span><span class="order-detail-value">${formatPHP(o.subtotal)}</span></div>
+      <div class="order-detail-row"><span class="order-detail-label">Shipping Fee</span><span class="order-detail-value">${formatPHP(o.shipping_fee)}</span></div>
+      <div class="order-detail-total-row"><span>Grand Total</span><span>${formatPHP(o.total)}</span></div>
+    </div>
+
+    <div class="order-detail-section">
+      <div class="order-detail-section-title">Payment Receipt</div>
+      ${receiptHtml}
+    </div>
+  `;
+}
+
+function openOrderDetailsModal(order) {
+  if (!DOM.orderDetailsModal || !DOM.orderDetailsBody) return;
+  DOM.orderDetailsBody.innerHTML = renderOrderDetailsHtml(order);
+  DOM.orderDetailsModal.style.display = 'flex';
+}
+
+function closeOrderDetailsModal() {
+  if (DOM.orderDetailsModal) DOM.orderDetailsModal.style.display = 'none';
 }
 
 // Admin: verify payment and finalize the sale (the ONLY action that sells a numbered card)
@@ -2109,8 +2210,26 @@ function setupEventListeners() {
         e.preventDefault();
         e.stopPropagation();
         handleMarkOrderShipped(markShippedBtn.getAttribute('data-id'));
+        return;
+      }
+
+      // The receipt thumbnail already opens the lightbox via its own onclick.
+      if (e.target.closest('.receipt-thumbnail')) return;
+
+      // Anywhere else in the row opens the full order details modal.
+      const row = e.target.closest('tr[data-order-id]');
+      if (row) {
+        const orderId = row.getAttribute('data-order-id');
+        const order = (adminState.orders || []).find(o => String(o.id) === String(orderId));
+        if (order) openOrderDetailsModal(order);
       }
     });
+  }
+
+  // Order Details Modal — close button only; clicking the backdrop is
+  // intentionally a no-op so a stray click never loses the open order.
+  if (DOM.closeOrderDetailsBtn) {
+    DOM.closeOrderDetailsBtn.addEventListener('click', closeOrderDetailsModal);
   }
 }
 

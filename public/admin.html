@@ -492,6 +492,23 @@
     </div>
   </div>
 
+  <!-- ================= ORDER DETAILS MODAL =================
+       No backdrop-click-to-close on purpose: an admin reviewing a full order
+       (receipt photo, address, item list) shouldn't lose it from a stray
+       click outside the card — only the explicit close button dismisses it. -->
+  <div id="orderDetailsModal" class="confirm-modal" style="display: none;">
+    <div class="confirm-modal-backdrop" id="orderDetailsBackdrop"></div>
+    <div class="edit-product-card" style="max-width: 600px;">
+      <div class="edit-product-header">
+        <h3>Order Details</h3>
+        <button type="button" id="closeOrderDetailsBtn" class="pos-modal-close">&times;</button>
+      </div>
+      <div class="edit-product-body" id="orderDetailsBody">
+        <!-- Injected via admin.js -->
+      </div>
+    </div>
+  </div>
+
   <!-- ================= MANAGE CARD NUMBERS MODAL ================= -->
   <div id="manageCardsModal" class="confirm-modal" style="display: none;">
     <div class="confirm-modal-backdrop" id="manageCardsBackdrop"></div>
