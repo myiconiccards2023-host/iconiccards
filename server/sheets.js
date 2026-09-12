@@ -18,6 +18,8 @@ export async function sendOrderToGoogleSheets(orderData) {
       customer_name: orderData.customer_name,
       customer_phone: orderData.customer_phone,
       customer_address: orderData.customer_address,
+      order_source: orderData.order_source,
+      order_source_name: orderData.order_source_name,
       courier: orderData.courier,
       payment_method: orderData.payment_method,
       items: orderData.items || [],

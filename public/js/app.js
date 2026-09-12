@@ -69,6 +69,9 @@ const DOM = {
   custPhone: document.getElementById('custPhone'),
   custPhoneError: document.getElementById('custPhoneError'),
   custAddress: document.getElementById('custAddress'),
+  custOrderSource: document.getElementById('custOrderSource'),
+  custOrderSourceName: document.getElementById('custOrderSourceName'),
+  custOrderSourceNameError: document.getElementById('custOrderSourceNameError'),
   custCourier: document.getElementById('custCourier'),
   courierHint: document.getElementById('courierHint'),
   custShippingRegionGroup: document.getElementById('custShippingRegionGroup'),
@@ -813,6 +816,9 @@ function setupEventListeners() {
   if (DOM.custPhone) {
     DOM.custPhone.addEventListener('input', () => clearFieldError(DOM.custPhone, DOM.custPhoneError));
   }
+  if (DOM.custOrderSourceName) {
+    DOM.custOrderSourceName.addEventListener('input', () => clearFieldError(DOM.custOrderSourceName, DOM.custOrderSourceNameError));
+  }
 
   // Courier / Shipping Region: toggle the region picker + live Grand Total
   if (DOM.custCourier) {
@@ -982,11 +988,14 @@ async function handleOrderSubmit(e) {
   const customerName = DOM.custFullName.value.trim();
   const customerPhone = DOM.custPhone.value.trim();
   const customerAddress = DOM.custAddress.value.trim();
+  const orderSource = DOM.custOrderSource ? DOM.custOrderSource.value : '';
+  const orderSourceName = DOM.custOrderSourceName ? DOM.custOrderSourceName.value.trim() : '';
   const courierValue = (DOM.custCourier && DOM.custCourier.value) ? DOM.custCourier.value : 'Lalamove';
   const shippingRegion = DOM.custShippingRegion ? DOM.custShippingRegion.value : '';
 
   clearFieldError(DOM.custFullName, DOM.custFullNameError);
   clearFieldError(DOM.custPhone, DOM.custPhoneError);
+  clearFieldError(DOM.custOrderSourceName, DOM.custOrderSourceNameError);
   clearFieldError(DOM.custShippingRegion, DOM.custShippingRegionError);
   if (DOM.receiptUploadBox) DOM.receiptUploadBox.classList.remove('has-error');
   if (DOM.receiptError) DOM.receiptError.style.display = 'none';
@@ -1003,6 +1012,14 @@ async function handleOrderSubmit(e) {
   }
   if (!customerAddress) {
     showToast('Please fill out your delivery address', 'error');
+    hasValidationError = true;
+  }
+  if (!orderSource) {
+    showToast('Please select where you ordered from', 'error');
+    hasValidationError = true;
+  }
+  if (!orderSourceName) {
+    setFieldError(DOM.custOrderSourceName, DOM.custOrderSourceNameError);
     hasValidationError = true;
   }
   if (courierValue === 'J&T Express' && !shippingRegion) {
@@ -1039,6 +1056,8 @@ async function handleOrderSubmit(e) {
   formData.append('customer_name', customerName);
   formData.append('customer_phone', customerPhone);
   formData.append('customer_address', customerAddress);
+  formData.append('order_source', orderSource);
+  formData.append('order_source_name', orderSourceName);
   formData.append('courier', courierValue);
   if (courierValue === 'J&T Express') {
     formData.append('shipping_region', shippingRegion);

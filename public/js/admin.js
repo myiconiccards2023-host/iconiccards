@@ -638,6 +638,7 @@ async function loadAdminOrders(isSilent = false) {
           <div class="cell-truncate" style="font-weight: 600;" title="${o.customer_name}">${o.customer_name}</div>
           <div style="font-size: 0.8rem; color: var(--text-muted);">${o.customer_phone}</div>
           <div class="cell-truncate" style="font-size: 0.75rem; color: var(--text-muted);" title="${o.customer_address}">${o.customer_address}</div>
+          ${o.order_source ? `<div class="cell-truncate" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;" title="${o.order_source_name || ''}">via ${o.order_source}${o.order_source_name ? ' (' + o.order_source_name + ')' : ''}</div>` : ''}
         </td>
         <td style="font-size: 0.82rem; line-height: 1.4;">
           ${itemsFormatted}

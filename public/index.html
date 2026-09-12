@@ -230,6 +230,26 @@
 
           <div class="modal-two-col">
             <div class="form-group-pos">
+              <label class="form-label-pos">Ordered From <span class="req">*</span></label>
+              <select id="custOrderSource" class="select-pos" required>
+                <option value="" selected disabled>Select platform...</option>
+                <option value="Facebook Page">Facebook Page</option>
+                <option value="Facebook Marketplace">Facebook Marketplace</option>
+                <option value="Messenger (Main Account)">Messenger (Main Account)</option>
+                <option value="Instagram Page">Instagram Page</option>
+                <option value="Carousel">Carousel</option>
+                <option value="Tiktok Page">Tiktok Page</option>
+              </select>
+            </div>
+            <div class="form-group-pos">
+              <label class="form-label-pos">Your Name on that Platform <span class="req">*</span></label>
+              <input type="text" id="custOrderSourceName" class="input-pos" placeholder="e.g. Maria Santos">
+              <span id="custOrderSourceNameError" class="field-error-msg" style="display: none;">Please enter the name you used on that platform.</span>
+            </div>
+          </div>
+
+          <div class="modal-two-col">
+            <div class="form-group-pos">
               <label class="form-label-pos">Courier <span class="req">*</span></label>
               <select id="custCourier" class="select-pos" required>
                 <option value="Lalamove" selected>Lalamove</option>

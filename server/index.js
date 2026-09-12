@@ -164,6 +164,8 @@ app.post('/api/orders', upload.single('receipt'), async (req, res) => {
       customer_name,
       customer_phone,
       customer_address,
+      order_source,
+      order_source_name,
       courier,
       shipping_region,
       payment_method,
@@ -179,6 +181,12 @@ app.post('/api/orders', upload.single('receipt'), async (req, res) => {
     }
     if (!customer_address || !customer_address.trim()) {
       return res.status(400).json({ error: 'Complete Delivery Address is required' });
+    }
+    if (!order_source || !order_source.trim()) {
+      return res.status(400).json({ error: 'Please select where you ordered from' });
+    }
+    if (!order_source_name || !order_source_name.trim()) {
+      return res.status(400).json({ error: 'Please enter the name you used on that platform' });
     }
     if (!courier || !courier.trim()) {
       return res.status(400).json({ error: 'Courier is required' });
@@ -260,6 +268,8 @@ app.post('/api/orders', upload.single('receipt'), async (req, res) => {
       customer_name: customer_name.trim(),
       customer_phone: customer_phone.trim(),
       customer_address: customer_address.trim(),
+      order_source: order_source.trim(),
+      order_source_name: order_source_name.trim(),
       courier: finalCourier,
       payment_method,
       receipt_url,
@@ -275,6 +285,8 @@ app.post('/api/orders', upload.single('receipt'), async (req, res) => {
       customer_name: customer_name.trim(),
       customer_phone: customer_phone.trim(),
       customer_address: customer_address.trim(),
+      order_source: order_source.trim(),
+      order_source_name: order_source_name.trim(),
       courier: finalCourier,
       payment_method,
       receipt_url,
@@ -699,6 +711,8 @@ app.get('/api/admin/orders/export', requireAdmin, async (req, res) => {
       'Quantity',
       'Phone Number',
       'Location / Address',
+      'Ordered From',
+      'Name on Platform',
       'Courier',
       'Mode of Payment',
       'Subtotal',
@@ -728,6 +742,8 @@ app.get('/api/admin/orders/export', requireAdmin, async (req, res) => {
           escapeCsv(item.qty),
           escapeCsv(o.customer_phone),
           escapeCsv(o.customer_address),
+          escapeCsv(o.order_source),
+          escapeCsv(o.order_source_name),
           escapeCsv(o.courier),
           escapeCsv(o.payment_method),
           escapeCsv(index === 0 ? o.subtotal : ''),
@@ -769,6 +785,8 @@ app.get('/api/admin/orders/export-excel', requireAdmin, async (req, res) => {
       { header: 'Quantity', key: 'qty', width: 10 },
       { header: 'Phone Number', key: 'phone', width: 16 },
       { header: 'Location / Address', key: 'address', width: 32 },
+      { header: 'Ordered From', key: 'orderSource', width: 22 },
+      { header: 'Name on Platform', key: 'orderSourceName', width: 20 },
       { header: 'Courier', key: 'courier', width: 22 },
       { header: 'Mode of Payment', key: 'payment', width: 16 },
       { header: 'Subtotal', key: 'subtotal', width: 12 },
@@ -794,6 +812,8 @@ app.get('/api/admin/orders/export-excel', requireAdmin, async (req, res) => {
           qty: Number(item.qty) || 0,
           phone: o.customer_phone,
           address: o.customer_address,
+          orderSource: o.order_source || '',
+          orderSourceName: o.order_source_name || '',
           courier: o.courier,
           payment: o.payment_method,
           subtotal: index === 0 ? (Number(o.subtotal) || 0) : '',

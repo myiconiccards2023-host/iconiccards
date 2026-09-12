@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS public.orders (
   customer_name TEXT NOT NULL,
   customer_phone TEXT NOT NULL,
   customer_address TEXT NOT NULL,
+  order_source TEXT NOT NULL DEFAULT '',
+  order_source_name TEXT NOT NULL DEFAULT '',
   courier TEXT NOT NULL DEFAULT 'Lalamove',
   payment_method TEXT NOT NULL DEFAULT 'GCash',
   receipt_url TEXT DEFAULT '',
@@ -199,4 +201,8 @@ ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ;
 
 -- 8.4 Multi-photo gallery per product (image_url stays as the cover/first photo)
 ALTER TABLE public.products ADD COLUMN IF NOT EXISTS image_urls JSONB NOT NULL DEFAULT '[]'::jsonb;
+
+-- 8.5 Order source: which platform the customer ordered from + their name/handle there
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS order_source TEXT NOT NULL DEFAULT '';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS order_source_name TEXT NOT NULL DEFAULT '';
 

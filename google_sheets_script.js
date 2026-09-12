@@ -10,12 +10,14 @@
  * F: Quantity
  * G: Phone Number
  * H: Location / Address
- * I: Courier
- * J: Mode of Payment
- * K: Subtotal
- * L: Shipping
- * M: Grand Total
- * N: Photo of Receipt
+ * I: Ordered From
+ * J: Name on Platform
+ * K: Courier
+ * L: Mode of Payment
+ * M: Subtotal
+ * N: Shipping
+ * O: Grand Total
+ * P: Photo of Receipt
  */
 
 function doPost(e) {
@@ -63,6 +65,8 @@ function doPost(e) {
         "Quantity",
         "Phone Number",
         "Location / Address",
+        "Ordered From",
+        "Name on Platform",
         "Courier",
         "Mode of Payment",
         "Subtotal",
@@ -71,7 +75,7 @@ function doPost(e) {
         "Photo of Receipt"
       ]);
 
-      sheet.getRange(1, 1, 1, 14)
+      sheet.getRange(1, 1, 1, 16)
         .setFontWeight("bold")
         .setBackground("#1e1e1e")
         .setFontColor("#ffffff");
@@ -93,6 +97,8 @@ function doPost(e) {
         item.qty || 1,
         "'" + (data.customer_phone || ""), // Prefix with ' to preserve leading zero in phone numbers
         data.customer_address || "",
+        data.order_source || "",
+        data.order_source_name || "",
         data.courier || "",
         data.payment_method || "",
         isFirst ? (data.subtotal || 0) : "",

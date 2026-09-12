@@ -87,6 +87,8 @@ if (isSupabaseConfigured) {
       customer_name TEXT NOT NULL,
       customer_phone TEXT NOT NULL,
       customer_address TEXT NOT NULL,
+      order_source TEXT NOT NULL DEFAULT '',
+      order_source_name TEXT NOT NULL DEFAULT '',
       courier TEXT NOT NULL,
       payment_method TEXT NOT NULL,
       receipt_url TEXT NOT NULL,
@@ -101,6 +103,10 @@ if (isSupabaseConfigured) {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  // Migrate older local order tables that predate the order-source fields
+  try { sqliteDb.exec("ALTER TABLE orders ADD COLUMN order_source TEXT NOT NULL DEFAULT ''"); } catch (e) {}
+  try { sqliteDb.exec("ALTER TABLE orders ADD COLUMN order_source_name TEXT NOT NULL DEFAULT ''"); } catch (e) {}
 
   console.log('[Database] Running in local SQLite mode');
 }
@@ -745,6 +751,8 @@ export const db = {
     customer_name,
     customer_phone,
     customer_address,
+    order_source,
+    order_source_name,
     courier,
     payment_method,
     receipt_url,
@@ -770,7 +778,7 @@ export const db = {
 
     if (!isSupabaseConfigured) {
       // SQLite: single synchronous transaction gives us true atomicity for free.
-      return this._createOrderAtomicSqlite({ orderId, customer_name, customer_phone, customer_address, courier, payment_method, receipt_url, subtotal, shipping_fee, total, items, numberedItems, plainItems, hasNumberedItems });
+      return this._createOrderAtomicSqlite({ orderId, customer_name, customer_phone, customer_address, order_source, order_source_name, courier, payment_method, receipt_url, subtotal, shipping_fee, total, items, numberedItems, plainItems, hasNumberedItems });
     }
 
     // --- Phase 2: commit numbered-card claims, with rollback on any failure ---
@@ -826,6 +834,8 @@ export const db = {
         customer_name,
         customer_phone,
         customer_address,
+        order_source,
+        order_source_name,
         courier,
         payment_method,
         receipt_url: receipt_url || '',
@@ -847,7 +857,7 @@ export const db = {
     return { id: orderId, total, items, status: 'Pending' };
   },
 
-  async _createOrderAtomicSqlite({ orderId, customer_name, customer_phone, customer_address, courier, payment_method, receipt_url, subtotal, shipping_fee, total, items, numberedItems, plainItems, hasNumberedItems }) {
+  async _createOrderAtomicSqlite({ orderId, customer_name, customer_phone, customer_address, order_source, order_source_name, courier, payment_method, receipt_url, subtotal, shipping_fee, total, items, numberedItems, plainItems, hasNumberedItems }) {
     const claimCardStmt = sqliteDb.prepare(`UPDATE product_cards SET status = ?, pending_order_id = ?, updated_at = CURRENT_TIMESTAMP WHERE product_id = ? AND card_number = ? AND status = ?`);
     const getCardStmt = sqliteDb.prepare('SELECT * FROM product_cards WHERE product_id = ? AND card_number = ?');
     const checkAndUpdateStockStmt = sqliteDb.prepare('UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?');
@@ -875,11 +885,13 @@ export const db = {
       sqliteDb.prepare(`
         INSERT INTO orders (
           id, customer_name, customer_phone, customer_address,
+          order_source, order_source_name,
           courier, payment_method, receipt_url, subtotal, shipping_fee,
           total, items_json, status, payment_status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
         orderId, customer_name, customer_phone, customer_address,
+        order_source || '', order_source_name || '',
         courier, payment_method, receipt_url || '', subtotal, shipping_fee,
         total, JSON.stringify(items), 'Pending', hasNumberedItems ? 'AWAITING_VERIFICATION' : null
       );
